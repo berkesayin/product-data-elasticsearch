@@ -1,0 +1,12 @@
+spring:
+  application:
+    name: product-data
+
+elasticsearch:
+  username: ${ELASTICSEARCH_USERNAME}
+  password: ${ELASTICSEARCH_PASSWORD}
+# extract:
+#   products:
+#     enabled: true
+#   categories:
+#     enabled: false
