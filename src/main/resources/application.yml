@@ -5,8 +5,8 @@ spring:
 elasticsearch:
   username: ${ELASTICSEARCH_USERNAME}
   password: ${ELASTICSEARCH_PASSWORD}
-# extract:
-#   products:
-#     enabled: true
-#   categories:
-#     enabled: false
+extract:
+  products:
+    enabled: true
+  categories:
+    enabled: false

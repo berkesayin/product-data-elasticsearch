@@ -21,7 +21,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-// @ConditionalOnProperty(prefix = "extract.categories", name = "enabled", havingValue = "true", matchIfMissing = false)
+@ConditionalOnProperty(prefix = "extract.categories", name = "enabled", havingValue = "true", matchIfMissing = false)
 @Component
 public class ExtractCategories {
 
@@ -72,8 +72,8 @@ public class ExtractCategories {
                 for (Hit<Map> hit : hits) {
                     Map<String, Object> sourceMap = hit.source();
 
-                    if (sourceMap != null && sourceMap.containsKey("category")) {
-                        String category = sourceMap.get("category").toString();
+                    if (sourceMap != null && sourceMap.containsKey("category_name")) {
+                        String category = sourceMap.get("category_name").toString();
                         categoryCounts.put(category, categoryCounts.getOrDefault(category, 0) + 1);
                     }
                 }
@@ -95,9 +95,9 @@ public class ExtractCategories {
             for (Map.Entry<String, Integer> entry : categoryCounts.entrySet()) {
                 final String currentId = String.valueOf(idCounter);
                 Map<String, Object> categoryDoc = new HashMap<>();
-                categoryDoc.put("category", entry.getKey());
+                // Update: use category_name and integer category_id as per the schema.
+                categoryDoc.put("category_name", entry.getKey());
                 categoryDoc.put("category_id", currentId);
-                categoryDoc.put("category_products", entry.getValue());
                 client.index(i -> i
                         .index("category")
                         .id(currentId)

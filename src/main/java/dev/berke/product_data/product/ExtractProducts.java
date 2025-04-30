@@ -22,7 +22,7 @@ import java.util.Map;
 
 import dev.berke.product_data.utils.Utils;
 
-// @ConditionalOnProperty(prefix = "extract.products", name = "enabled", havingValue = "true", matchIfMissing = false)
+@ConditionalOnProperty(prefix = "extract.products", name = "enabled", havingValue = "true", matchIfMissing = false)
 @Component
 public class ExtractProducts {
 
@@ -84,18 +84,18 @@ public class ExtractProducts {
                         List<Map> products = (List<Map>) sourceMap.get("products");
                         for (Map product : products) {
                             Map<String, Object> prodDoc = new HashMap<>();
-                            prodDoc.put("base_price", product.get("base_price"));
-                            prodDoc.put("manufacturer", product.get("manufacturer"));
-                            prodDoc.put("product_id", product.get("product_id"));
-                            prodDoc.put("category", product.get("category"));
-                            prodDoc.put("sku", product.get("sku"));
-                            prodDoc.put("min_price", product.get("min_price"));
-                            prodDoc.put("created_on", product.get("created_on"));
-                            prodDoc.put("product_name", product.get("product_name"));
-                            prodDoc.put("status", 1);
-
                             String category = (String) product.get("category");
+
+                            prodDoc.put("product_id", product.get("product_id"));
+                            prodDoc.put("product_name", product.get("product_name"));
                             prodDoc.put("category_id", CATEGORY_ID_MAP.get(category));
+                            prodDoc.put("category_name", product.get("category"));
+                            prodDoc.put("base_price", product.get("base_price"));
+                            prodDoc.put("min_price", product.get("min_price"));
+                            prodDoc.put("manufacturer", product.get("manufacturer"));
+                            prodDoc.put("sku", product.get("sku"));
+                            prodDoc.put("created_on", product.get("created_on"));
+                            prodDoc.put("status", 1);
 
                             client.index(i -> i
                                     .index("product")
