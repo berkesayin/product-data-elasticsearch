@@ -27,19 +27,6 @@ import dev.berke.product_data.utils.Utils;
 public class ExtractProducts {
 
     private final Utils utils;
-    private static final Map<String, Integer> CATEGORY_ID_MAP;
-
-    static {
-        Map<String, Integer> map = new HashMap<>();
-        map.put("Women's Accessories", 1);
-        map.put("Women's Clothing", 2);
-        map.put("Women's Shoes", 3);
-        map.put("Men's Accessories", 4);
-        map.put("Men's Shoes", 5);
-        map.put("Men's Clothing", 6);
-
-        CATEGORY_ID_MAP = Map.copyOf(map);
-    }
 
     public ExtractProducts(Utils utils) {
         this.utils = utils;
@@ -88,7 +75,7 @@ public class ExtractProducts {
 
                             prodDoc.put("product_id", product.get("product_id"));
                             prodDoc.put("product_name", product.get("product_name"));
-                            prodDoc.put("category_id", CATEGORY_ID_MAP.get(category));
+                            prodDoc.put("category_id", Utils.CATEGORY_ID_MAP.get(category));
                             prodDoc.put("category_name", product.get("category"));
                             prodDoc.put("base_price", product.get("base_price"));
                             prodDoc.put("min_price", product.get("min_price"));
