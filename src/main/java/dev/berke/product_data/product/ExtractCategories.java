@@ -72,13 +72,14 @@ public class ExtractCategories {
             // store unique category names efficiently
             Set<String> uniqueCategoryNames = new HashSet<>();
             log.info("Scrolling through 'product' index to find unique categories...");
+
             SearchRequest searchRequest = SearchRequest.of(s -> s
-                    .index("product") // Target index
+                    .index("product")
                     .scroll(Time.of(t -> t.time("1m")))
                     .size(1000)
                     .source(src -> src
                             .filter(f -> f
-                                    .includes("category_name") // only fetch this field
+                                    .includes("category") // fetch the 'category' object
                             )
                     )
                     .query(q -> q
@@ -94,19 +95,25 @@ public class ExtractCategories {
             while (hits != null && !hits.isEmpty()) {
                 totalProductsScanned += hits.size();
                 log.debug("Processing batch of {} products... (Total scanned: {})", hits.size(), totalProductsScanned);
+
                 for (Hit<Map> hit : hits) {
                     Map<String, Object> sourceMap = hit.source();
 
-                    if (sourceMap != null && sourceMap.containsKey("category_name")) {
-                        Object categoryNameObj = sourceMap.get("category_name");
-                        if (categoryNameObj != null) {
-                            String categoryName = categoryNameObj.toString();
-                            uniqueCategoryNames.add(categoryName);
-                        } else {
-                            log.warn("Product document {} has null category_name field", hit.id());
+                    // handle nested object structure
+                    if (sourceMap != null && sourceMap.containsKey("category")) {
+                        Object categoryObj = sourceMap.get("category");
+
+                        // check if category is a map (object in JSON)
+                        if (categoryObj instanceof Map) {
+                            Map<?, ?> categoryMap = (Map<?, ?>) categoryObj;
+                            Object nameObj = categoryMap.get("name");
+
+                            if (nameObj != null) {
+                                uniqueCategoryNames.add(nameObj.toString());
+                            }
                         }
                     } else {
-                        log.warn("Product document {} missing category_name field", hit.id());
+                        log.warn("Product document {} missing 'category' field", hit.id());
                     }
                 }
 
@@ -131,6 +138,7 @@ public class ExtractCategories {
             log.info("Indexing {} unique categories...", uniqueCategoryNames.size());
             int categoriesIndexed = 0;
             int categoriesSkipped = 0;
+
             for (String categoryName : uniqueCategoryNames) {
                 Integer categoryId = Utils.CATEGORY_ID_MAP.get(categoryName);
                 if (categoryId != null) {
@@ -145,6 +153,8 @@ public class ExtractCategories {
                             .id(docId)
                             .document(categoryDoc));
                     categoriesIndexed++;
+                } else {
+                    categoriesSkipped++;
                 }
             }
             log.info("Category indexing finished. Indexed: {}, Skipped (due to missing map entry): {}",
